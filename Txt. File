@@ -1,0 +1,35 @@
+# Simulated Ransomware for Sandbox Testing
+# By ChatGPT, for educational purposes only
+
+$TargetFolder = "$env:USERPROFILE\Desktop\RansomTest"
+$RansomNote = "$TargetFolder\README_RESTORE_FILES.txt"
+
+# Create test folder and files
+if (!(Test-Path $TargetFolder)) {
+    New-Item -ItemType Directory -Path $TargetFolder | Out-Null
+    1..5 | ForEach-Object {
+        Set-Content -Path "$TargetFolder\TestFile$_.txt" -Value "This is test file $_"
+    }
+}
+
+# Simulate "encryption" by renaming files
+Get-ChildItem -Path $TargetFolder -Filter "*.txt" | ForEach-Object {
+    Rename-Item $_.FullName ($_.Name + ".locked")
+}
+
+# Drop fake ransom note
+$NoteText = @"
+Your files have been locked by SandboxSim Ransomware.
+This is only a simulation for cybersecurity analysis.
+
+To restore your files, run the provided restoration command.
+No data has been harmed.
+"@
+Set-Content -Path $RansomNote -Value $NoteText
+
+# Display fake ransom note
+notepad.exe $RansomNote
+
+# Provide restoration command
+Write-Host "`nTo restore your files, run the following command:"
+Write-Host "`nGet-ChildItem -Path `"$TargetFolder`" -Filter `"*.locked`" | ForEach-Object { Rename-Item `$_ ($_.Name -replace `".locked`",`"`") }`n" -ForegroundColor Green
